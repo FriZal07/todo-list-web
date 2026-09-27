@@ -5,14 +5,93 @@ export default function ui_load() {
     app.innerHTML = 
     `   <div id="container">
             <div id="top_container">
+                <button id="sidebar_toggle_button">☰</button>
+                <div id="rightside_top_container"></div>
             </div>
             <div id="middle_container">
-                <button id="counter">Test</button>
+                <div id="left_container">
+                </div>
+                <div id="right_container">
+                    <div id="right_container_boxes">
+
+                        <div id="todo_container"></div>
+                        <div id="todo_container"></div>
+                        <div id="todo_container"></div>
+                        <div id="todo_container"></div>
+                        <div id="todo_container"></div>
+                        <div id="todo_container"></div>
+                        <div id="todo_container"></div>
+
+
+                    </div>
+                </div>
             </div>
             <div id="bottom_container">
-
+        
             </div>
         </div>
+    `
+    ;
+
+    const togglebutton = document.getElementById("sidebar_toggle_button");
+    const leftcontainer = document.getElementById("left_container");
+    const mediaQuery = window.matchMedia("(max-width: 768px)");
+
+    function handleMediaQueryChange(event) {
+        if (event.matches) { //mean if width is less than 768px, then dont mobile_bar_on bar
+            leftcontainer.classList.remove("mobile_bar_on");
+        }
+        else { //mean if width is greater than 768px, then mobile_bar_on bar
+            leftcontainer.classList.add("mobile_bar_on");
+        }
+    }
+
+    mediaQuery.addEventListener("change", handleMediaQueryChange);
+
+    togglebutton.addEventListener("click", () => {
+        const mobilebaron = leftcontainer.classList.contains("mobile_bar_on");
+        const desktopbaron = leftcontainer.classList.contains("desktop_bar_on");
+        
+        switch(true) {
+            // --- DESKTOP LOGIC (mediaQuery.matches) ---
+
+            case !desktopbaron && !mediaQuery.matches:
+                leftcontainer.classList.add("desktop_bar_on");
+                console.log("Desktop: Bar is now closed");
+                break;
+                
+            // 2. If on desktop AND the bar is closed -> Show it
+            case desktopbaron && !mediaQuery.matches:
+                leftcontainer.classList.remove("desktop_bar_on"); 
+                console.log("Desktop: Bar is now open");
+                break;
+
+            // --- MOBILE LOGIC (mediaQuery.matches) ---
+
+            // 3. If on mobile AND the bar is shown -> Close it
+            case mobilebaron && mediaQuery.matches:
+                leftcontainer.classList.remove("mobile_bar_on");
+                leftcontainer.classList.remove("desktop_bar_on"); // Failsafe cleanup
+                console.log("Mobile: Bar is now closed");
+                break;
+                
+            // 4. If on mobile AND the bar is closed (!mobilebaron) -> Show it
+            case !mobilebaron && mediaQuery.matches:
+                leftcontainer.classList.add("mobile_bar_on");
+                leftcontainer.classList.remove("desktop_bar_on"); // Failsafe cleanup
+                console.log("Mobile: Bar is now open"); 
+                break;
+    }});
+
+    handleMediaQueryChange(mediaQuery);
+}
+
+export function todo_load() {
+    const right_container_boxes = document.getElementById("right_container_boxes");
+    
+    // 1. Inject the HTML string
+    right_container_boxes.innerHTML = 
+    `   
     `
     ;
 }
