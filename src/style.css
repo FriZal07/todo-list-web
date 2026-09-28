@@ -15,23 +15,44 @@ body, #app{
     height: 100%;
 }
 
+/* 1. Activate custom scrollbars (required for the button rule to work) */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+/* 2. Hide the arrows */
+::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+/* 3. Redraw the track (the background) */
+::-webkit-scrollbar-track {
+    background: transparent; 
+}
+
+
 
 #top_container{
     background-color: #f0f0f0;
 
     display: flex;
     flex-direction: row;
+    width: 100%; 
+    justify-content: space-between; /* This forces the buttons to opposite ends */
 
-    justify-content: left;
-    align-items: left;
-
-    #sidebar_toggle_button{
-        flex: 1 1 25%;
-        max-width: 25%;
+    #sidebar_toggle_button{}
+    
+    #sidebar_toggle_button, #rightside_top_container{
+        flex: 0 0 min(25%, 250px);
         font-size: 2rem;
+        padding-left: 40px;
 
         display: flex;
-        justify-content: center;
+        flex-direction: row;
+        justify-content: flex-start;
         align-items: center;
 
         border: none;
@@ -42,7 +63,14 @@ body, #app{
         transition: background-color 0.2s ease, transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
 
-    #sidebar_toggle_button:hover {
+    /* Media query for mobile view sidebar*/
+    @media (max-width: 768px) {
+        #sidebar_toggle_button{
+        flex: 0 0 max(25%, 250px);
+    }}
+
+
+    #sidebar_toggle_button:hover, #rightside_top_container:hover {
         background-color: rgba(0, 0, 0, 0.05); /* Light grey transparent overlay */
         transform: scale(1);
     }
@@ -53,10 +81,21 @@ body, #app{
         background-color: rgba(0, 0, 0, 0.1);
     }
 
-    #rightside_top_container{
-        flex: 1 1 75%;
-        max-width: 75%;
+     #rightside_top_container:hover {
+        transform: scale(0.92);
+        background-color: rgba(0, 0, 0, 0.1);
+    }
 
+    #rightside_top_container{
+        font-size: 40px;
+        margin-right: 20px;
+        flex: 0 0 80px;
+
+
+        /* 2. Nuke all padding to prevent width bloating */
+        padding: 0;
+        
+        /* 3. Center the '+' icon perfectly inside the 50x50 box */
         display: flex;
         justify-content: center;
         align-items: center;
@@ -70,7 +109,7 @@ body, #app{
 
     #left_container{
         flex: 0 1 25%;
-        max-width: 400px;
+        max-width: 250px;
         background-color: #e0e0e0;
 
         transition: transform 0.3s ease-in-out;
@@ -100,7 +139,7 @@ body, #app{
 
     /* Media query for desktop view side bar*/
     #left_container.desktop_bar_on {
-        margin-left: max(-25%, -400px);
+        margin-left: max(-25%, -250px);
     }
 
     #right_container{
@@ -115,21 +154,172 @@ body, #app{
 
             display: grid;
             grid-auto-rows: 300px;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 350px));
+            grid-template-columns: repeat(auto-fill, minmax(250px, 300px));
             justify-content: center;
             gap: 40px;
 
             overflow-y: auto;
 
-            #todo_container{
+            .todo_container{
+                width: 100%;
+                height: 100%;
                 background-color: #f9f8f8;
-                border-radius: 30px;
+                border-radius: 8px;
                 place-self: stretch;
 
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
-                align-items: center;
+
+               .todo_container_template {
+                    width: 100%;
+                    height: 100%;
+                    display: flex;
+                    flex-direction: column;
+                    padding: 20px;
+                    box-sizing: border-box;
+                    font-family: sans-serif;
+
+                    /* Base styling for editable areas */
+                    [contenteditable="true"] {
+                        outline: none; /* Removes the default browser focus ring */
+                        border-radius: 4px;
+                        padding: 4px 8px;
+                    
+                    }
+
+                    .todo_container_template_top {
+                        flex: 0 1 10%; /* Sizes naturally to the text height rather than forcing 20% */
+                        max-height: 28%;
+                        display: flex;
+                        flex-direction: row;
+                        align-items: center;
+                        gap: 10px;
+                        margin-bottom: 12px;
+                        padding-bottom: 12px;
+                        border-bottom: 1px solid #ddd; /* Clean separator line */
+
+                        .todo_container_template_checkbox {
+                            /* 1. Nuke the native browser styling */
+                            appearance: none;
+                            -webkit-appearance: none; 
+                            
+                            /* Your existing sizing */
+                            width: 1.2rem;
+                            height: 1.2rem;
+                            margin: 0;
+                            flex-shrink: 0;
+                            margin-top: 3px;
+                            cursor: pointer;
+                            
+                            /* 2. Now your custom styles will apply */
+                            background-color: transparent;
+                            border: 2px solid #d1d1d1; /* 2px often looks better than 1px for checkboxes */
+                            border-radius: 4px; /* Optional: standard modern slight rounding */
+                            
+                            /* Needed to anchor the custom checkmark later */
+                            position: relative; 
+                            transition: all 0.2s ease;
+                        }
+
+                        /* Hover state for better UX */
+                        .todo_container_template_checkbox:hover {
+                            border-color: #888;
+                        }
+
+                        /* 3. Style the box when it is checked */
+                        .todo_container_template_checkbox:checked {
+                            background-color: #007bff; /* Or whatever your theme color is */
+                            border-color: #007bff;
+                        }
+
+                        /* 4. Draw the custom checkmark using a pseudo-element */
+                        .todo_container_template_checkbox:checked::after {
+                            content: '';
+                            position: absolute;
+                            /* Adjust these values slightly if the checkmark isn't perfectly centered */
+                            left: 5px;
+                            top: 1px;
+                            width: 4px;
+                            height: 10px;
+                            border: solid white;
+                            border-width: 0 2px 2px 0;
+                            transform: rotate(45deg);
+                        }
+
+                        .todo_container_template_top_left {
+                            flex: 0 1 90%;
+                            align-self: stretch;
+                            font-size: 1.2rem;
+                            font-weight: bold;
+                            color: #222;
+                            overflow-y: scroll;
+                        
+                        }
+
+                        .todo_container_template_top_right {
+                            flex: 0 1 10%;
+                            max-width: 20%;
+                            display: flex;
+                            text-align: right;
+                            font-size: 0.9rem;
+
+                            display: flex;
+                            flex-direction: column;
+                            justify-content: center;
+                            align-items: flex-end;
+                            gap: 5px;
+
+                            .todo_container_template_top_right_button {
+                                /* Reset default clunky browser styles */
+                                font-size: 20px;
+                                background-color: transparent;
+                                border: transparent;
+                                border-radius: 4px;
+                                cursor: pointer;
+                                color: #555;
+                                
+                                /* Fixed sizing ensures both buttons are identical squares */
+                                width: 30px;
+                                height: 30px;
+                                padding: 0;
+                                
+                                /* Centers the icon perfectly inside the square */
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                
+                                transition: all 0.2s ease;
+                            }
+
+                            .todo_container_template_top_right_button:hover {
+                                background-color: #e2e2e2;
+                                border-color: #b0b0b0;
+                                color: #111;
+                            }
+
+                            /* Optional: Make the delete button red on hover for clear UX */
+                            .todo_container_template_top_right_button.delete-btn:hover {
+                                background-color: #ffeaea;
+                                border-color: #ffc2c2;
+                                color: #d32f2f;
+                            }
+
+                        }
+                    }
+
+                    .todo_container_template_middle {
+                        flex: 1; /* Takes up all remaining space */
+                        font-size: 1rem;
+                        line-height: 1.5;
+                        overflow-y: auto;
+                        padding: 8px;
+                    }
+
+                    .todo_container_template_middle::-webkit-scrollbar-button {
+                        display: none;
+                    }
+                }
             }
 
         }

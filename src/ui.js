@@ -6,22 +6,13 @@ export default function ui_load() {
     `   <div id="container">
             <div id="top_container">
                 <button id="sidebar_toggle_button">☰</button>
-                <div id="rightside_top_container"></div>
+                <button id="rightside_top_container">✚</button>
             </div>
             <div id="middle_container">
                 <div id="left_container">
                 </div>
                 <div id="right_container">
                     <div id="right_container_boxes">
-
-                        <div id="todo_container"></div>
-                        <div id="todo_container"></div>
-                        <div id="todo_container"></div>
-                        <div id="todo_container"></div>
-                        <div id="todo_container"></div>
-                        <div id="todo_container"></div>
-                        <div id="todo_container"></div>
-
 
                     </div>
                 </div>
@@ -36,6 +27,7 @@ export default function ui_load() {
     const togglebutton = document.getElementById("sidebar_toggle_button");
     const leftcontainer = document.getElementById("left_container");
     const mediaQuery = window.matchMedia("(max-width: 768px)");
+    const addtasks = document.getElementById("rightside_top_container");
 
     function handleMediaQueryChange(event) {
         if (event.matches) { //mean if width is less than 768px, then dont mobile_bar_on bar
@@ -45,6 +37,10 @@ export default function ui_load() {
             leftcontainer.classList.add("mobile_bar_on");
         }
     }
+
+    addtasks.addEventListener("click", () => {
+        add_task();
+    })
 
     mediaQuery.addEventListener("change", handleMediaQueryChange);
 
@@ -86,12 +82,23 @@ export default function ui_load() {
     handleMediaQueryChange(mediaQuery);
 }
 
-export function todo_load() {
+export function add_task() {
     const right_container_boxes = document.getElementById("right_container_boxes");
     
     // 1. Inject the HTML string
-    right_container_boxes.innerHTML = 
-    `   
-    `
-    ;
+    right_container_boxes.insertAdjacentHTML('beforeend', `
+                       <div class="todo_container">
+                            <div class="todo_container_template">
+                                <div class="todo_container_template_top">
+                                    <input type="checkbox" class="todo_container_template_checkbox"></input>
+                                    <div class="todo_container_template_top_left" contenteditable="true"></div>
+                                    <div class="todo_container_template_top_right">
+                                        <button class="todo_container_template_top_right_button clear">✖</button>
+                                        <button class="todo_container_template_top_right_button zoom">🔍</button>
+                                    </div>
+                                </div>
+                                <div class="todo_container_template_middle" contenteditable="true"></div>
+                            </div>
+                        </div>
+    `);
 }
