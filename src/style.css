@@ -130,6 +130,10 @@ body, #app{
             transform: translateX(-100%);
         }
 
+        #right_container_boxes {
+            justify-content: center;
+        }
+
         #left_container.mobile_bar_on {
             transform: translateX(0);
         }
