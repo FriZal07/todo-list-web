@@ -1,3 +1,5 @@
+import ToDos from './classes/todotask.js'
+
 export default function ui_load() {
     const app = document.getElementById("app");
     
@@ -13,7 +15,6 @@ export default function ui_load() {
                 </div>
                 <div id="right_container">
                     <div id="right_container_boxes">
-
                     </div>
                 </div>
             </div>
@@ -82,9 +83,10 @@ export default function ui_load() {
     handleMediaQueryChange(mediaQuery);
 }
 
-export function add_task() {
+export function add_task() {    
+
     const right_container_boxes = document.getElementById("right_container_boxes");
-    
+
     // 1. Inject the HTML string
     right_container_boxes.insertAdjacentHTML('beforeend', `
                        <div class="todo_container">
@@ -101,4 +103,62 @@ export function add_task() {
                             </div>
                         </div>
     `);
+
+    const currentTaskElement = right_container_boxes.lastElementChild;
+
+    const todo_checklist = currentTaskElement.querySelector(".todo_container_template_checkbox");
+    const todo_titlebox = currentTaskElement.querySelector(".todo_container_template_top_left");
+    const todo_descriptionbox = currentTaskElement.querySelector(".todo_container_template_middle");
+    const todo_deletebox = currentTaskElement.querySelector(".clear");
+    const todo_magnifybox = currentTaskElement.querySelector(".zoom");
+
+    let newTask = new ToDos();
+
+    todo_deletebox.addEventListener("click", (event) => {
+        if (!newTask.setZoomed()){
+            right_container_boxes.classList.remove("zoomed-mode");
+            currentTaskElement.classList.remove("active-zoom");
+
+            currentTaskElement.remove();
+            newTask = null;
+        }
+        else{
+            currentTaskElement.remove();
+            newTask = null;
+        }
+    });
+
+    todo_magnifybox.addEventListener("click", (event) => {
+        
+        if (newTask.setZoomed()){
+            right_container_boxes.classList.add("zoomed-mode");
+            currentTaskElement.classList.add("active-zoom");
+            console.log("zoomed in!!");
+        }
+        else{
+            right_container_boxes.classList.remove("zoomed-mode");
+            currentTaskElement.classList.remove("active-zoom");
+            console.log("zoomed out!!");
+        }
+    });
+
+    todo_checklist.addEventListener("change", (event) => {
+        const isChecked = event.target.checked;
+        newTask.setCheck();
+        console.log(event.target.checked)
+    });
+
+    todo_titlebox.addEventListener("input", (event) => {
+        const newTitle = event.target.innerText;
+        newTask.updateTitle(newTitle);
+        console.log(event.target.innerText)
+    });
+
+    todo_descriptionbox.addEventListener("input", (event) => {
+        const newDesc = event.target.innerText;
+        newTask.updateDescription(newDesc);
+        console.log(event.target.innerText)
+    });
+    
+
 }
