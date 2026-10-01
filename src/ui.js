@@ -83,7 +83,13 @@ export default function ui_load() {
     handleMediaQueryChange(mediaQuery);
 }
 
-export function add_task() {    
+export function add_task(newTask = null) {    
+
+    if (newTask === null) {
+        newTask = new ToDos();
+    }
+
+    console.log("close to null", newTask.returnCheck());
 
     const right_container_boxes = document.getElementById("right_container_boxes");
 
@@ -112,30 +118,32 @@ export function add_task() {
     const todo_deletebox = currentTaskElement.querySelector(".clear");
     const todo_magnifybox = currentTaskElement.querySelector(".zoom");
 
-    let newTask = new ToDos();
+    todo_titlebox.innerText = newTask.returnTitle();
+    todo_descriptionbox.innerText = newTask.returnDescription();
+    todo_checklist.checked = newTask.returnCheck();
 
     todo_deletebox.addEventListener("click", (event) => {
-        if (!newTask.setZoomed()){
+        if (!newTask.toggleZoom()){
             right_container_boxes.classList.remove("zoomed-mode");
             currentTaskElement.classList.remove("active-zoom");
 
+            newTask.deleteFile();
             currentTaskElement.remove();
             newTask = null;
         }
         else{
+            newTask.deleteFile();
             currentTaskElement.remove();
             newTask = null;
         }
     });
 
     todo_magnifybox.addEventListener("click", (event) => {
-        
-        if (newTask.setZoomed()){
+if (newTask.toggleZoom()) { 
             right_container_boxes.classList.add("zoomed-mode");
             currentTaskElement.classList.add("active-zoom");
             console.log("zoomed in!!");
-        }
-        else{
+        } else {
             right_container_boxes.classList.remove("zoomed-mode");
             currentTaskElement.classList.remove("active-zoom");
             console.log("zoomed out!!");
@@ -144,21 +152,45 @@ export function add_task() {
 
     todo_checklist.addEventListener("change", (event) => {
         const isChecked = event.target.checked;
-        newTask.setCheck();
-        console.log(event.target.checked)
+        newTask.setCheck(isChecked);
+        newTask.updateFile();
+        // console.log(event.target.checked)
     });
 
     todo_titlebox.addEventListener("input", (event) => {
         const newTitle = event.target.innerText;
         newTask.updateTitle(newTitle);
-        console.log(event.target.innerText)
+        newTask.updateFile();
+        // console.log(event.target.innerText)
     });
 
     todo_descriptionbox.addEventListener("input", (event) => {
         const newDesc = event.target.innerText;
         newTask.updateDescription(newDesc);
-        console.log(event.target.innerText)
+        newTask.updateFile();
+        // console.log(event.target.innerText)
     });
-    
 
-}
+};
+
+export function load_file() {
+    const taskData = JSON.parse(localStorage.getItem(`Task_Array`));
+
+    if (taskData && taskData.length > 0) {
+
+        for (let i = 0; i < taskData.length; i++) {
+            let taskInstance = new ToDos();
+
+            taskInstance.updateTitle(taskData[i].title);
+            taskInstance.updateDescription(taskData[i].description);
+            taskInstance.setCheck(taskData[i].isChecked);
+            taskInstance.setuniqueId(taskData[i].uniqueid);
+
+            add_task(taskInstance);
+        }
+    }
+};
+
+export function SaveFile(taskData) {
+    localStorage.setItem(`Task_Array`, JSON.stringify(taskData));
+};
